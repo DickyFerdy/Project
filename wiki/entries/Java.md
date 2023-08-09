@@ -1,0 +1,3 @@
+# Java
+
+Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus consequatur doloremque provident qui sed. Exercitationem laborum ducimus illum error officia. Cum qui officiis, quae, earum minima adipisci quibusdam dignissimos amet ad quasi illum explicabo dolor repellendus suscipit unde eius ex ducimus. Numquam et dignissimos voluptatum temporibus illo enim nisi deserunt quae libero ipsum eos, magni autem sapiente est eveniet maxime dolorum necessitatibus reiciendis voluptatibus saepe? Voluptas doloribus nobis inventore rem tenetur quasi delectus laudantium blanditiis quae maxime, minima, enim quisquam at aliquid repellat, mollitia nisi dolore. Labore hic expedita aut veniam et porro rem eaque minima, fuga natus vitae sit.
