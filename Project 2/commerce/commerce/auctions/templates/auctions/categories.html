@@ -1,0 +1,15 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>All Category</h2>
+
+    <ul class="list-group pt-2">
+        {% for category in list_category %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="">{{ category.category }}</a>
+                <span class="badge badge-primary badge-pill">{{ category.count_listing }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}

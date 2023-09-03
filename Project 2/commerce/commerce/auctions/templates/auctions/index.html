@@ -3,5 +3,32 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-    TODO
+    <div class="row mx-3 justify-content-center pt-3">
+        {% for listing in listings %}
+            <div class="card col-lg-3 col-md-4 col-sm-6 mb-3" style="width: 18rem;">
+                <div class="card-top aspect-ratio-box">
+                    {% if not listing.imageURL %}
+                        <img class="card-img-top aspect-ratio-box-content" src="https://hesolutions.com.pk/wp-content/uploads/2019/01/picture-not-available.jpg" alt="{{ listing.title }}">
+                    {% else %}
+                        <img class="card-img-top aspect-ratio-box-content" src="{{ listing.imageURL }}" alt="{{ listing.title }}">
+                    {% endif %}
+                </div>
+                <div class="card-body pt-1 pb-1">
+                    <h5 class="card-title">{{ listing.title }}</h5>
+                    <p class="card-text">{{ listing.description }}</p>
+                    {% if not listing.bidPrice %}
+                        <p class="card-text"><h6>Start Price: ${{ listing.price }}</h6></p>
+                    {% else %}
+                        <p class="card-text"><h6>Current Price: ${{ listing.bidPrice }}</h6></p>
+                    {% endif %}
+                </div>
+                <div class="card-button-container mb-1">
+                    <a href="#" class="btn btn-primary">Bid Now</a>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">{{ listing.format_posting }}</small>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
