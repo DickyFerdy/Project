@@ -1,0 +1,141 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Listing: {{ listing.title }}</h2>
+
+    <!-- if listing still active -->
+    {% if listing.isActive == True %}
+        
+        <div>
+            {% if not listing.imageURL %}
+                <img src="https://hesolutions.com.pk/wp-content/uploads/2019/01/picture-not-available.jpg" alt="{{ listing.title }}" style="max-height: 400px;max-width: 600px;">
+            {% else %}
+                <img src="{{ listing.imageURL }}" alt="{{ listing.title }}" style="max-height: 400px;max-width: 600px;">
+            {% endif %}
+        </div>
+
+        <div>
+            <p>{{ listing.description }}</p>
+            <ul class="pl-0" style="list-style-type: none;">
+                {% if not listing.bidPrice %}
+                    <p class="card-text"><h6>Start Price: ${{ listing.price }}</h6></p>
+                {% else %}
+                    <p class="card-text"><h6>Current Price: ${{ listing.bidPrice }}</h6></p>
+                {% endif %}
+                <li>Category: <a href="{% url 'category_view' category.id %}">{{ listing.category }}</a></li>
+                <li>Listed by: <a href="">{{ listing.owner }}</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <!-- if user login -->
+            {% if user.is_authenticated %}
+                <!-- if login but not the owner of the listing -->
+                {% if user.username != owner.username %}
+                    <!-- if login but listing is not active/sold and user as the last bidder -->
+                    {% if not listing.isActive and user == listing.bidPrice.user %}
+                        <div class="alert alert-success py-2" role="alert">
+                            Congratulation! You won the Auction!
+                        </div>
+                    {% else %}
+                        <form action="" method="POST">
+                            {% csrf_token %}
+                            <div class="col-lg-6 col-md-8 col-sm-10 pl-0">
+                                <div class="alert alert-primary mb-2 py-2" role="alert">
+                                    Place Your Bid!
+                                </div>
+                                <div class="form-group mb-2">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">$</span>
+                                        {% if listing.bidPrice is None %}
+                                            <input type="number" name="bid" class="form-control" min="{{ listing.price }}" step="0.01" autocomplete="off">
+                                        {% else %}
+                                            <input type="number" name="bid" class="form-control" min="{{ listing.bidPrice }}" step="0.01" autocomplete="off">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" type="submit">Submit</button>
+                            </div>
+                        </form>
+                    {% endif %}
+                <!-- if login as the owner -->
+                {% else %}
+                    <div class="my-2">
+                        <!-- if listing still active/not sold -->
+                        {% if listing.isActive %}
+                            <!-- if listing have a bidder -->
+                            {% if listing.bidPrice != None %}
+                                <form action="" method="POST">
+                                    {% csrf_token %}
+                                    <button class="btn btn-danger" type="submit">Close Auction</button>
+                                </form>
+                            <!-- if listing dont have a bidder -->
+                            {% else %}
+                                <form action="" method="POST">
+                                    {% csrf_token %}
+                                    <div class="alert alert-danger py-2" role="alert">
+                                        Unfortunately, there is no buyers at the moment.
+                                    </div>
+                                    <button class="btn btn-danger" type="submit" disabled>Close Auction</button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                        <!-- if listing is inactive/sold -->
+                            <div class="alert alert-success py-2" role="alert">
+                                Congratulation! your auction has been sold!
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            <!-- if user not login -->
+            {% else %}
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    <div class="col-lg-6 col-md-8 col-sm-10 pl-0">
+                        <div class="alert alert-danger mb-2 py-2" role="alert">
+                            <a href="{% url 'login' %}" class="alert-link">Log In</a> to place a Bid!
+                        </div>
+                        <div class="form-group mb-2">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                                <input type="number" name="bid" class="form-control" min="{{ listing.price }}" step="0.01" autocomplete="off" disabled>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" type="submit" disabled>Submit</button>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+
+        <div class="container-fluid px-0 my-4">
+            <div class="row justify-content-start">
+                <div class="col-lg-6 col-md-8 col-sm-10">
+                    <h2>Comments</h2>
+                    <!-- if user login -->
+                    {% if user.is_authenticated %}
+                        <div class="form-group">
+                            <form action="" method="POST">
+                                {% csrf_token %}
+                                <textarea class="form-control" name="newComment" rows="3" placeholder="Add New Comment"></textarea>
+                                <button class="btn btn-primary mt-2" type="submit">Add Comment</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="form-group">
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                <textarea class="form-control" name="newComment" rows="3" placeholder="Add New Comment"></textarea>
+                                <button class="btn btn-primary mt-2" type="submit" disabled>Add Comment</button>
+                                <div class="alert alert-danger my-2 py-2" role="alert">
+                                    <a href="" class="alert-link">Log In</a> to make Comments
+                                </div>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    {% endif %}
+
+{% endblock %}

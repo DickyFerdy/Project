@@ -107,3 +107,23 @@ def categories(request):
     return render(request, "auctions/categories.html", {
         "list_category": list_category
     })
+    
+    
+def listing(request, id):
+    listing_data = Listing.objects.get(pk=id)
+    category = Category.objects.get(categoryName=listing_data.category)
+    owner = User.objects.get(username=listing_data.owner)
+    return render(request, "auctions/listing.html", {
+        "listing": listing_data,
+        "category": category,
+        "owner": owner
+    })
+    
+    
+def category_view(request, id):
+    category_data = Category.objects.get(pk=id)
+    listing_data = Listing.objects.filter(isActive=True, category=category_data)
+    return render(request, "auctions/category_view.html", {
+        "listings": listing_data,
+        "category": category_data
+    })
