@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, Category, Bid, Listing
+from .models import User, Category, Bid, Listing, Transaction
 
 
 def index(request):
@@ -109,6 +109,15 @@ def categories(request):
     })
     
     
+def category_view(request, id):
+    category_data = Category.objects.get(pk=id)
+    listing_data = Listing.objects.filter(isActive=True, category=category_data)
+    return render(request, "auctions/category_view.html", {
+        "listings": listing_data,
+        "category": category_data
+    })
+    
+    
 def listing(request, id):
     listing_data = Listing.objects.get(pk=id)
     category = Category.objects.get(categoryName=listing_data.category)
@@ -120,10 +129,75 @@ def listing(request, id):
     })
     
     
-def category_view(request, id):
-    category_data = Category.objects.get(pk=id)
-    listing_data = Listing.objects.filter(isActive=True, category=category_data)
-    return render(request, "auctions/category_view.html", {
-        "listings": listing_data,
-        "category": category_data
+def listed_by(request, id):
+    owner = User.objects.get(pk=id)
+    listings = Listing.objects.filter(owner=owner)
+    return render(request, "auctions/listed_by.html", {
+        "owner": owner,
+        "listings": listings
     })
+    
+    
+def new_bid(request, id):
+    listing_data = Listing.objects.get(pk=id)
+    category = Category.objects.get(categoryName=listing_data.category)
+    owner = User.objects.get(username=listing_data.owner)
+    user = request.user
+    if request.method == "POST":
+        newBid = float(request.POST['bid'])
+        if listing_data.bidPrice is None:
+            if newBid > listing_data.price:
+                update_bid = Bid(user=user, bid=newBid)
+                update_bid.save()
+                listing_data.bidPrice = update_bid
+                listing_data.save()
+                
+                transaction = Transaction(user=user,
+                                          listing=listing_data,
+                                          bid=update_bid)
+                transaction.save()
+
+                return render(request, "auctions/listing.html", {
+                    "listing": listing_data,
+                    "success": "Your bid was succesfully added",
+                    "category": category,
+                    "owner": owner
+                })
+            else:
+                return render(request, "auctions/listing.html", {
+                    "listing": listing_data,
+                    "error": "Your bid must be higher than the current price.",
+                    "category": category,
+                    "owner": owner
+                })
+        else:
+            if newBid > listing_data.bidPrice.bid:
+                update_bid = Bid(user=user, bid=newBid)
+                update_bid.save()
+                listing_data.bidPrice = update_bid
+                listing_data.save()
+
+                transaction = Transaction(user=user,
+                            listing=listing_data,
+                            bid=update_bid)
+                transaction.save()
+                
+                return render(request, "auctions/listing.html", {
+                    "listing": listing_data,
+                    "success": "Your bid was succesfully added",
+                    "category": category,
+                    "owner": owner
+                })
+            else:
+                return render(request, "auctions/listing.html", {
+                    "listing": listing_data,
+                    "error": "Your bid must be higher than the current price.",
+                    "category": category,
+                    "owner": owner
+                })
+    else:
+        return render(request, "auctions/listing.html", {
+            "listing": listing_data,
+            "category": category,
+            "owner": owner
+        })

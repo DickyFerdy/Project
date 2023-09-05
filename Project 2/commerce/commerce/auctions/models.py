@@ -19,7 +19,7 @@ class Bid(models.Model):
     bid = models.DecimalField(max_digits=10, decimal_places=2)
     
     def __str__(self):
-        return self.bid
+        return f"{self.bid}"
 
 
 class Listing(models.Model):
@@ -39,3 +39,12 @@ class Listing(models.Model):
 
     def format_posting(self):
         return self.postTime.strftime("Created %d %b %Y, %I:%M %p")
+    
+    
+class Transaction(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE , related_name="user_transaction")
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="listing_transaction")
+    bid = models.ForeignKey(Bid, on_delete=models.CASCADE, related_name="bid_transaction")
+
+    def __str__(self):
+        return f"{self.listing} by {self.user} at {self.bid}"
