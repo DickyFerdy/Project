@@ -48,3 +48,16 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.listing} by {self.user} at {self.bid}"
+    
+    
+class Comments(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="author_comment")
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="listing_comment")
+    message = models.CharField(max_length=300)
+    postTime = models.DateTimeField(default=datetime.datetime.now)
+    
+    def __str__(self):
+        return f"{self.author} comment on {self.listing}"
+        
+    def format_posting(self):
+        return self.postTime.strftime("%d %b %Y, %I:%M %p")

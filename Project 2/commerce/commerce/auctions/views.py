@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, Category, Bid, Listing, Transaction
+from .models import User, Category, Bid, Listing, Transaction, Comments
 
 
 def index(request):
@@ -122,10 +122,14 @@ def listing(request, id):
     listing_data = Listing.objects.get(pk=id)
     category = Category.objects.get(categoryName=listing_data.category)
     owner = User.objects.get(username=listing_data.owner)
+    comments = Comments.objects.filter(listing=listing_data)
+    watchlist = request.user in listing_data.watchlist.all()
     return render(request, "auctions/listing.html", {
         "listing": listing_data,
         "category": category,
-        "owner": owner
+        "owner": owner,
+        "comments": comments,
+        "watchlist": watchlist
     })
     
     
@@ -201,3 +205,80 @@ def new_bid(request, id):
             "category": category,
             "owner": owner
         })
+        
+        
+def my_listing(request):
+     user = request.user
+     listing_data = Listing.objects.filter(owner=user)
+     return render(request, "auctions/my_listing.html", {
+         "listings": listing_data
+     })
+
+
+def transaction(request):
+    user = request.user
+    user_transaction = Transaction.objects.filter(user=user)
+    listings = set()
+
+    for transaction in user_transaction:
+        listings.add(transaction.listing)
+        
+    return render(request, "auctions/transaction.html", {
+        "listings": listings
+    }) 
+ 
+        
+def comment(request, id):
+    listing_data = Listing.objects.get(pk=id)
+    user = request.user
+    message = request.POST['newComment']
+    
+    comment = Comments(author=user,
+                       listing=listing_data,
+                       message=message)
+    comment.save()
+
+    return HttpResponseRedirect(reverse("listing", args=(id, )))
+
+
+def close_auction(request, id):
+    listing_data = Listing.objects.get(pk=id)
+    listing_data.isActive = False
+    listing_data.save()
+    category = Category.objects.get(categoryName=listing_data.category)
+    owner = User.objects.get(username=listing_data.owner)
+    watchlist = request.user in listing_data.watchlist.all()
+    comments = Comments.objects.filter(listing=listing_data)
+    
+    return render(request, "auctions/listing.html", {
+        "listing": listing_data,
+        "category": category,
+        "owner": owner,
+        "comments": comments,
+        "watchlist": watchlist
+    })
+    
+
+def watchlist_display(request):
+    user = request.user
+    listings = user.listing_watchlist.all()
+    
+    return render(request, "auctions/watchlist.html", {
+        "listings": listings
+    })
+    
+    
+def watchlist_add(request, id):
+    listing_data = Listing.objects.get(pk=id)
+    user = request.user
+    listing_data.watchlist.add(user)
+
+    return HttpResponseRedirect(reverse("listing", args=(id, )))
+    
+    
+def watchlist_remove(request, id):
+    listing_data = Listing.objects.get(pk=id)
+    user = request.user
+    listing_data.watchlist.remove(user)
+
+    return HttpResponseRedirect(reverse("listing", args=(id, )))
