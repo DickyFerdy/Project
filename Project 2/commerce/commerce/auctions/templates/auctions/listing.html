@@ -20,6 +20,12 @@
                         <button type="submit" class="btn btn-secondary btn-sm">Remove Watchlist</button>
                     </form>
                 {% endif %}
+                {% if user == listing.owner %}
+                    <form action="{% url 'edit' listing.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-sm mx-2">Edit Listing</button>
+                    </form>
+                {% endif %}
             {% endif %}
         </div>
 
@@ -159,6 +165,12 @@
                     <form action="{% url 'watchlist_remove' listing.id %}">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-secondary btn-sm">Remove Watchlist</button>
+                    </form>
+                {% endif %}
+                {% if user == listing.owner %}
+                    <form action="{% url 'edit' listing.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-sm mx-2" disabled>Edit Listing</button>
                     </form>
                 {% endif %}
             {% endif %}

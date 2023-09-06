@@ -282,3 +282,29 @@ def watchlist_remove(request, id):
     listing_data.watchlist.remove(user)
 
     return HttpResponseRedirect(reverse("listing", args=(id, )))
+
+
+def edit(request, id):
+    listing_data = Listing.objects.get(pk=id)
+    categories = Category.objects.all()
+    return render(request, "auctions/edit.html", {
+        "listing": listing_data,
+        "categories": categories
+    })
+    
+    
+def save_edit(request, id):
+    listing_data = Listing.objects.get(pk=id)
+    categoryData = Category.objects.get(categoryName=request.POST['category'])
+    if request.method == "POST":     
+        listing_data.title = request.POST['title']
+        listing_data.description = request.POST['description']
+        listing_data.imageURL = request.POST['imageUrl']
+        listing_data.price = request.POST['price']
+        listing_data.bidPrice = None
+        listing_data.category = categoryData
+        listing_data.owner = request.user
+        
+        listing_data.save()
+        
+        return HttpResponseRedirect(reverse("index"))
